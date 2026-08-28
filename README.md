@@ -34,6 +34,7 @@ nos destinos de Fotos e Vídeos — sempre mostrando o resultado antes de copiar
 | ◇ | **Duplicados sob controle** | Compara o conteúdo e avisa sobre repetições ou conflitos no destino. |
 | ▶ | **Fotos e vídeos** | Oferece preview integrado e visualização ampliada com controles de reprodução. |
 | ◐ | **Claro, escuro ou automático** | Pode acompanhar o tema atual do Windows. |
+| ↻ | **Atualizações integradas** | Verifica, baixa e instala novas versões pelo próprio aplicativo. |
 
 ## Um fluxo simples
 
@@ -57,9 +58,13 @@ Splitaria-Setup-<versão>-win-x64.exe
 
 A instalação é feita no perfil do usuário e normalmente não exige privilégios
 administrativos. O pacote inclui o runtime necessário e os componentes de vídeo.
+Nas versões a partir da 0.19.0, futuras atualizações podem ser instaladas em
+**Preferências > Verificar atualizações**; o download é validado por SHA-256
+antes da execução.
 
-> O instalador ainda não possui certificado digital de uma autoridade
-> certificadora. O Windows pode exibir um aviso ao abri-lo pela primeira vez.
+> O executável e o instalador ainda não possuem assinatura digital — nem
+> autoassinada, nem emitida por uma autoridade certificadora. O Windows pode
+> exibir um aviso ao abri-los pela primeira vez.
 
 ## Para desenvolver
 

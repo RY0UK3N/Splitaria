@@ -1,8 +1,4 @@
 using Splitaria.Core;
-using System.Diagnostics;
-using System.Net.Http;
-using System.Reflection;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -41,24 +37,38 @@ public partial class PreferencesWindow : Window
         UpdateStatusText.Text = "Consultando atualizações…";
         try
         {
-            using var client = new HttpClient();
-            var current = Assembly.GetExecutingAssembly().GetName().Version ?? new Version();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd($"Splitaria/{current.ToString(3)}");
-            var json = await client.GetStringAsync("https://api.github.com/repos/RY0UK3N/Splitaria/releases/latest");
-            using var document = JsonDocument.Parse(json);
-            var tag = document.RootElement.GetProperty("tag_name").GetString() ?? "";
-            var page = document.RootElement.GetProperty("html_url").GetString();
-            var available = Version.TryParse(tag.TrimStart('v', 'V'), out var latest) && latest > current;
-            UpdateStatusText.Text = available ? $"Nova versão disponível: {tag}" : "Você já está usando a versão mais recente.";
-            if (available && page is not null && MessageBox.Show($"A versão {tag} está disponível. Abrir a página para baixar?",
-                    "Atualização disponível", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
-                Process.Start(new ProcessStartInfo(page) { UseShellExecute = true });
+            var release = await UpdateService.CheckAsync();
+            if (release is null)
+            {
+                UpdateStatusText.Text = "Você já está usando a versão mais recente.";
+                return;
+            }
+
+            UpdateStatusText.Text = $"Nova versão disponível: {release.Tag}";
+            var choice = MessageBox.Show(
+                $"A versão {release.Tag} está disponível.\n\nDeseja baixar e instalar a atualização agora?\nO Splitaria será fechado e reaberto ao concluir.",
+                "Atualização disponível", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            if (choice != MessageBoxResult.Yes) return;
+
+            var progress = new Progress<int>(percent =>
+            {
+                UpdateStatusText.Text = $"Baixando atualização… {percent}%";
+                UpdateButton.Content = $"Baixando… {percent}%";
+            });
+            var installer = await UpdateService.DownloadAsync(release, progress);
+            UpdateStatusText.Text = "Download concluído. Iniciando a atualização…";
+            UpdateService.StartInstaller(installer);
+            Application.Current.Shutdown();
         }
-        catch
+        catch (Exception ex)
         {
-            UpdateStatusText.Text = "Não foi possível consultar as atualizações. Verifique sua conexão ou se já existe uma versão publicada.";
+            UpdateStatusText.Text = $"Não foi possível atualizar: {ex.Message}";
         }
-        finally { UpdateButton.IsEnabled = true; }
+        finally
+        {
+            UpdateButton.Content = "Verificar atualizações";
+            UpdateButton.IsEnabled = true;
+        }
     }
 
     private static string SelectedTag(ComboBox combo) => (combo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "System";

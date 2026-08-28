@@ -1,5 +1,5 @@
 #ifndef MyAppVersion
-  #define MyAppVersion "0.18.7"
+  #define MyAppVersion "0.19.0"
 #endif
 #ifndef PublishDir
   #define PublishDir "..\publish\installer-input"
@@ -64,6 +64,21 @@ Name: "{autodesktop}\Splitaria"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: 
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Abrir o Splitaria"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Flags: nowait skipifnotsilent; Check: IsUpdateMode
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
+
+[Code]
+function IsUpdateMode: Boolean;
+var
+  Index: Integer;
+begin
+  Result := False;
+  for Index := 1 to ParamCount do
+    if CompareText(ParamStr(Index), '/UPDATE') = 0 then
+    begin
+      Result := True;
+      Exit;
+    end;
+end;
