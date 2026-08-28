@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/Splitaria.Core/Splitaria.Core.csproj" />
+  <Project Path="src/Splitaria.App/Splitaria.App.csproj" />
+  <Project Path="tests/Splitaria.Tests/Splitaria.Tests.csproj" />
+</Solution>

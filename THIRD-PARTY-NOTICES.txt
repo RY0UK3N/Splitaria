@@ -1,0 +1,26 @@
+AVISOS DE COMPONENTES DE TERCEIROS
+==================================
+
+O Splitaria inclui componentes de terceiros. Esses componentes permanecem
+sujeitos às licenças e aos direitos autorais de seus respectivos titulares.
+
+LibVLCSharp e LibVLCSharp.WPF
+Copyright (c) VideoLAN, VideoLabs e colaboradores.
+Licença: GNU Lesser General Public License, versão 2.1 ou posterior.
+Código-fonte: https://code.videolan.org/videolan/LibVLCSharp
+
+libVLC / VideoLAN.LibVLC.Windows
+Copyright (c) VideoLAN e colaboradores.
+Licença: GNU Lesser General Public License, versão 2.1 ou posterior.
+Código-fonte: https://code.videolan.org/videolan/vlc
+
+Uma cópia da GNU LGPL 2.1 acompanha o aplicativo em licenses/LGPL-2.1.txt.
+O uso dessas bibliotecas não implica endosso do Splitaria pela VideoLAN.
+
+SPLITARIA
+=========
+
+Copyright © 2026 Splitaria contributors.
+
+O código próprio do Splitaria é disponibilizado sob a licença MIT, cuja cópia
+acompanha o aplicativo em LICENSE.txt. Ele não é licenciado pela LGPL acima.

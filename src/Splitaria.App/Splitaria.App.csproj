@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Splitaria</AssemblyName>
+    <RootNamespace>Splitaria.App</RootNamespace>
+    <Product>Splitaria</Product>
+    <Description>Organizador local de fotos e vídeos para Windows.</Description>
+    <Company>Splitaria</Company>
+    <Copyright>Copyright © 2026 Splitaria contributors.</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <ApplicationIcon>..\..\assets\brand\Splitaria.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>0.18.7</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Splitaria.Core/Splitaria.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\..\assets\brand\splitaria-mark-64.png">
+      <Link>assets\brand\splitaria-mark-64.png</Link>
+    </Resource>
+    <Resource Include="..\..\assets\brand\splitaria-mark-256.png">
+      <Link>assets\brand\splitaria-mark-256.png</Link>
+    </Resource>
+    <Resource Include="..\..\assets\brand\splitaria-splash-art-neutral-v1.png">
+      <Link>assets\brand\splitaria-splash-art-neutral-v1.png</Link>
+    </Resource>
+    <Content Include="..\..\THIRD-PARTY-NOTICES.txt">
+      <Link>THIRD-PARTY-NOTICES.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Include="..\..\LICENSE">
+      <Link>LICENSE.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Include="..\..\licenses\LGPL-2.1.txt">
+      <Link>licenses\LGPL-2.1.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="LibVLCSharp.WPF" Version="3.10.1" />
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.23.1" />
+  </ItemGroup>
+</Project>
