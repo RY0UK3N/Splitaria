@@ -20,7 +20,7 @@ O uso dessas bibliotecas não implica endosso do Splitaria pela VideoLAN.
 SPLITARIA
 =========
 
-Copyright © 2026 Splitaria contributors.
+Copyright © 2026 Marcos Luciano Tagliari Junior.
 
 O código próprio do Splitaria é disponibilizado sob a licença MIT, cuja cópia
 acompanha o aplicativo em LICENSE.txt. Ele não é licenciado pela LGPL acima.

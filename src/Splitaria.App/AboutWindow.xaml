@@ -45,7 +45,7 @@
                     </Border>
 
                     <TextBlock Text="Licença do Splitaria" FontWeight="SemiBold" Margin="0,0,0,6" />
-                    <TextBlock Text="Código aberto sob a licença MIT. Copyright © 2026 Splitaria contributors."
+                    <TextBlock Text="Código aberto sob a licença MIT. Copyright © 2026 Marcos Luciano Tagliari Junior."
                                Foreground="{DynamicResource MutedTextBrush}" TextWrapping="Wrap" LineHeight="19" />
 
                     <Separator Margin="0,20,0,18" />

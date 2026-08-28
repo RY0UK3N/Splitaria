@@ -9,7 +9,7 @@
 #endif
 
 #define MyAppName "Splitaria"
-#define MyAppPublisher "Splitaria contributors"
+#define MyAppPublisher "Marcos Luciano Tagliari Junior"
 #define MyAppExeName "Splitaria.exe"
 #define MyAppURL "https://github.com/RY0UK3N/Splitaria"
 
@@ -46,7 +46,7 @@ VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription=Instalador do Splitaria
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
-VersionInfoCopyright=Copyright (c) 2026 Splitaria contributors
+VersionInfoCopyright=Copyright (c) 2026 Marcos Luciano Tagliari Junior
 
 [Languages]
 Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
@@ -67,4 +67,3 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Abrir o Splitaria"; Flags: nowa
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
-

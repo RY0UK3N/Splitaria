@@ -9,8 +9,9 @@
     <RootNamespace>Splitaria.App</RootNamespace>
     <Product>Splitaria</Product>
     <Description>Organizador local de fotos e vídeos para Windows.</Description>
-    <Company>Splitaria</Company>
-    <Copyright>Copyright © 2026 Splitaria contributors.</Copyright>
+    <Company>Marcos Luciano Tagliari Junior</Company>
+    <Authors>Marcos Luciano Tagliari Junior</Authors>
+    <Copyright>Copyright © 2026 Marcos Luciano Tagliari Junior.</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>..\..\assets\brand\Splitaria.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
