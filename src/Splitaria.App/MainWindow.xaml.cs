@@ -188,6 +188,7 @@ public partial class MainWindow : Window
     private async void Analyze_Click(object sender, RoutedEventArgs e)
     {
         if (!ValidateFolders()) return;
+        HideCompletion();
         SetBusy(true, "Analisando metadados e duplicados…");
         _items.Clear();
         try
@@ -248,15 +249,49 @@ public partial class MainWindow : Window
             ProgressBar.Value = value.Current * 100d / Math.Max(value.Total, 1);
             StatusText.Text = $"Organizando {value.Current}/{value.Total}…";
         });
+        var stopwatch = Stopwatch.StartNew();
         var result = await _organizer.CopyAsync(selected, duplicateAction, progress);
+        stopwatch.Stop();
         StatusText.Text = $"Concluído: {result.Copied} copiados, {result.Skipped} ignorados, {result.Failed} falhas";
         ProgressBar.Value = 100;
         AnalyzeButton.IsEnabled = true;
         OrganizeButton.IsEnabled = false;
+        ShowCompletion(result, stopwatch.Elapsed);
+    }
 
-        if (result.Copied > 0 && MessageBox.Show("Organização concluída. Abrir a pasta de fotos?", "Splitaria",
-                MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
-            Process.Start(new ProcessStartInfo(PhotoDestinationTextBox.Text) { UseShellExecute = true });
+    private void ShowCompletion(OrganizationResult result, TimeSpan elapsed)
+    {
+        CopiedCountText.Text = result.Copied.ToString();
+        PhotoCountText.Text = result.CopiedPhotos.ToString();
+        VideoCountText.Text = result.CopiedVideos.ToString();
+        SkippedFailedCountText.Text = $"{result.Skipped} · {result.Failed}";
+        CompletionSubtitleText.Text = $"{result.Processed} arquivos processados em {FormatDuration(elapsed)}";
+        OpenPhotosButton.IsEnabled = result.CopiedPhotos > 0 && Directory.Exists(PhotoDestinationTextBox.Text);
+        OpenVideosButton.IsEnabled = result.CopiedVideos > 0 && Directory.Exists(VideoDestinationTextBox.Text);
+        PreviewPanel.Visibility = Visibility.Collapsed;
+        CompletionPanel.Visibility = Visibility.Visible;
+    }
+
+    private static string FormatDuration(TimeSpan elapsed) => elapsed.TotalSeconds < 1
+        ? "menos de 1 segundo"
+        : elapsed.TotalSeconds < 60
+            ? $"{elapsed.TotalSeconds:0.#} segundos"
+            : $"{(int)elapsed.TotalMinutes} min {elapsed.Seconds} s";
+
+    private void HideCompletion()
+    {
+        CompletionPanel.Visibility = Visibility.Collapsed;
+        PreviewPanel.Visibility = Visibility.Visible;
+    }
+
+    private void CloseCompletion_Click(object sender, RoutedEventArgs e) => HideCompletion();
+    private void NewOrganization_Click(object sender, RoutedEventArgs e) => InvalidateAnalysis();
+    private void OpenPhotos_Click(object sender, RoutedEventArgs e) => OpenDestination(PhotoDestinationTextBox.Text);
+    private void OpenVideos_Click(object sender, RoutedEventArgs e) => OpenDestination(VideoDestinationTextBox.Text);
+
+    private static void OpenDestination(string path)
+    {
+        if (Directory.Exists(path)) Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
     }
 
     private void FilesGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -428,6 +463,7 @@ public partial class MainWindow : Window
 
     private void InvalidateAnalysis()
     {
+        HideCompletion();
         _items.Clear(); OrganizeButton.IsEnabled = false;
         SummaryText.Text = "Escolha as pastas e analise para montar a prévia.";
         StatusText.Text = "Pronto para analisar"; ProgressBar.Value = 0; ClearPreview();

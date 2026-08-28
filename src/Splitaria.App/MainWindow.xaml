@@ -276,7 +276,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <Border Grid.Row="2" Margin="18,12,18,12" Background="{DynamicResource SubtleSurfaceBrush}" BorderBrush="{DynamicResource SoftBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
+                    <Border x:Name="PreviewPanel" Grid.Row="2" Margin="18,12,18,12" Background="{DynamicResource SubtleSurfaceBrush}" BorderBrush="{DynamicResource SoftBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="12">
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="260" /><ColumnDefinition Width="20" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                             <Border Background="{DynamicResource ControlBackgroundBrush}" CornerRadius="8" ClipToBounds="True" Cursor="Hand"
@@ -297,6 +297,43 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,3"><TextBlock Text="↖" Foreground="{DynamicResource MutedTextBrush}" Width="24" /><TextBlock x:Name="SelectedSourceText" Foreground="{DynamicResource MutedTextBrush}" TextTrimming="CharacterEllipsis" /></StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,3"><TextBlock Text="↘" Foreground="{DynamicResource MutedTextBrush}" Width="24" /><TextBlock x:Name="SelectedDestinationText" Foreground="{DynamicResource MutedTextBrush}" TextTrimming="CharacterEllipsis" /></StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,3"><TextBlock Text="◇" Foreground="#85858F" Width="24" /><TextBlock x:Name="SelectedDuplicateText" Foreground="#4A825A" TextTrimming="CharacterEllipsis" /></StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border x:Name="CompletionPanel" Grid.Row="2" Visibility="Collapsed" Margin="18,12,18,12"
+                            Background="{DynamicResource SubtleSurfaceBrush}" BorderBrush="{DynamicResource SoftBorderBrush}"
+                            BorderThickness="1" CornerRadius="10" Padding="18,14">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                            <Grid Grid.Row="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="32" Height="32" CornerRadius="16" Background="{DynamicResource InfoBackgroundBrush}" Margin="0,0,11,0">
+                                        <TextBlock Text="✓" Foreground="{DynamicResource InfoTextBrush}" FontSize="17" FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Organização concluída" FontSize="16" FontWeight="SemiBold" />
+                                        <TextBlock x:Name="CompletionSubtitleText" Foreground="{DynamicResource MutedTextBrush}" FontSize="12" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <Button HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource GhostButtonStyle}"
+                                        Width="32" Height="32" Padding="0" Margin="0" Content="×" FontSize="18"
+                                        ToolTip="Voltar à visualização" Click="CloseCompletion_Click" />
+                            </Grid>
+                            <Grid Grid.Row="1" Margin="43,11,43,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel><TextBlock x:Name="CopiedCountText" FontSize="20" FontWeight="SemiBold" /><TextBlock Text="Copiados" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" /></StackPanel>
+                                <StackPanel Grid.Column="1"><TextBlock x:Name="PhotoCountText" FontSize="20" FontWeight="SemiBold" /><TextBlock Text="Fotos" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" /></StackPanel>
+                                <StackPanel Grid.Column="2"><TextBlock x:Name="VideoCountText" FontSize="20" FontWeight="SemiBold" /><TextBlock Text="Vídeos" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" /></StackPanel>
+                                <StackPanel Grid.Column="3"><TextBlock x:Name="SkippedFailedCountText" FontSize="20" FontWeight="SemiBold" /><TextBlock Text="Ignorados · falhas" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" /></StackPanel>
+                            </Grid>
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button x:Name="OpenPhotosButton" Content="Ver fotos" Margin="4,0" Padding="15,8" Click="OpenPhotos_Click" />
+                                <Button x:Name="OpenVideosButton" Content="Ver vídeos" Margin="4,0" Padding="15,8" Click="OpenVideos_Click" />
+                                <Button Content="Nova organização" Style="{StaticResource PrimaryButtonStyle}" Margin="4,0,0,0" Padding="17,8" Click="NewOrganization_Click" />
                             </StackPanel>
                         </Grid>
                     </Border>

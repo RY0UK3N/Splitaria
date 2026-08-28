@@ -29,6 +29,7 @@ try
     var organizer = new MediaOrganizer();
     var organized = await organizer.CopyAsync(result, DuplicateAction.Skip);
     Check("Copia arquivo", organized.Copied == 1 && File.Exists(result[0].DestinationPath));
+    Check("Detalha fotos copiadas", organized.CopiedPhotos == 1 && organized.CopiedVideos == 0);
     Check("Não sobrescreve", (await organizer.CopyAsync(result, DuplicateAction.Skip)).Skipped == 1);
 
     var duplicatePath = Path.Combine(source, "copia_20260827.jpg");

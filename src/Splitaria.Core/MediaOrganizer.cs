@@ -3,7 +3,11 @@ using System.IO;
 namespace Splitaria.Core;
 
 public enum DuplicateAction { Skip, KeepBoth }
-public sealed record OrganizationResult(int Copied, int Skipped, int Failed);
+public sealed record OrganizationResult(int CopiedPhotos, int CopiedVideos, int Skipped, int Failed)
+{
+    public int Copied => CopiedPhotos + CopiedVideos;
+    public int Processed => Copied + Skipped + Failed;
+}
 
 public sealed class MediaOrganizer
 {
@@ -11,7 +15,7 @@ public sealed class MediaOrganizer
         IProgress<(int Current, int Total)>? progress = null, CancellationToken cancellationToken = default)
     {
         var selected = items.Where(item => item.IsSelected).ToArray();
-        var copied = 0; var skipped = 0; var failed = 0;
+        var copiedPhotos = 0; var copiedVideos = 0; var skipped = 0; var failed = 0;
         for (var index = 0; index < selected.Length; index++)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -33,14 +37,15 @@ public sealed class MediaOrganizer
                     await using var destination = new FileStream(destinationPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true);
                     await source.CopyToAsync(destination, cancellationToken);
                     File.SetLastWriteTime(destinationPath, File.GetLastWriteTime(item.SourcePath));
-                    copied++;
+                    if (item.Kind == MediaKind.Photo) copiedPhotos++;
+                    else copiedVideos++;
                 }
             }
             catch (IOException) { failed++; }
             catch (UnauthorizedAccessException) { failed++; }
             progress?.Report((index + 1, selected.Length));
         }
-        return new OrganizationResult(copied, skipped, failed);
+        return new OrganizationResult(copiedPhotos, copiedVideos, skipped, failed);
     }
 
     private static string GetAvailableName(string path)
