@@ -4,18 +4,23 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 BRAND = ROOT / "assets" / "brand"
-SOURCE = BRAND / "splitaria-mark-minimal-master.png"
+SOURCE = BRAND / "splitaria-mark-2026-master.png"
 
 
 def square_canvas(source: Image.Image) -> Image.Image:
     rgba = source.convert("RGBA")
     alpha = rgba.getchannel("A")
-    bounds = alpha.getbbox()
+    # Ignore near-transparent export noise so the visible mark, rather than the
+    # original canvas, determines its size in Windows icon slots.
+    visible_alpha = alpha.point(lambda value: 255 if value >= 8 else 0)
+    bounds = visible_alpha.getbbox()
     if bounds is None:
         raise RuntimeError("The brand source has no visible pixels.")
     cropped = rgba.crop(bounds)
     side = max(cropped.size)
-    padding = max(24, round(side * 0.07))
+    # Roughly 5% of clear space on each side matches the optical footprint of
+    # common Windows taskbar icons without making the mark touch its slot.
+    padding = max(16, round(side * 0.05))
     canvas = Image.new("RGBA", (side + padding * 2, side + padding * 2), (0, 0, 0, 0))
     canvas.alpha_composite(cropped, ((canvas.width - cropped.width) // 2, (canvas.height - cropped.height) // 2))
     return canvas

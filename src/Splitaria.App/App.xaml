@@ -25,6 +25,9 @@
         <SolidColorBrush x:Key="DisabledTextBrush" Color="#777582" />
         <SolidColorBrush x:Key="SelectionBackgroundBrush" Color="#E3E0FA" />
         <SolidColorBrush x:Key="SelectionStatusBrush" Color="#246B3A" />
+        <SolidColorBrush x:Key="SuccessTextBrush" Color="#367A4C" />
+        <SolidColorBrush x:Key="WarningTextBrush" Color="#9A5B20" />
+        <SolidColorBrush x:Key="ErrorTextBrush" Color="#A14343" />
 
         <Style TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI" />

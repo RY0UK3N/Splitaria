@@ -1,5 +1,5 @@
 #ifndef MyAppVersion
-  #define MyAppVersion "0.20.0"
+  #define MyAppVersion "0.21.0"
 #endif
 #ifndef PublishDir
   #define PublishDir "..\publish\installer-input"
@@ -32,7 +32,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir={#OutputDir}
 OutputBaseFilename=Splitaria-Setup-{#MyAppVersion}-win-x64
 SetupIconFile=..\assets\brand\Splitaria.ico
-UninstallDisplayIcon={app}\{#MyAppExeName}
+UninstallDisplayIcon={app}\Splitaria-{#MyAppVersion}.ico
 LicenseFile=..\LICENSE
 WizardStyle=modern
 Compression=lzma2/ultra64
@@ -56,11 +56,15 @@ Name: "desktopicon"; Description: "Criar um atalho na área de trabalho"; GroupD
 
 [Files]
 Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\assets\brand\Splitaria.ico"; DestDir: "{app}"; DestName: "Splitaria-{#MyAppVersion}.ico"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\Splitaria"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
-Name: "{group}\Desinstalar o Splitaria"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\Splitaria"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{autoprograms}\Splitaria"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\Splitaria-{#MyAppVersion}.ico"
+Name: "{autodesktop}\Splitaria"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\Splitaria-{#MyAppVersion}.ico"; Tasks: desktopicon
+
+[InstallDelete]
+Type: filesandordirs; Name: "{autoprograms}\Splitaria"
+Type: files; Name: "{app}\Splitaria-*.ico"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "Abrir o Splitaria"; Flags: nowait postinstall skipifsilent
@@ -70,6 +74,13 @@ Filename: "{app}\{#MyAppExeName}"; Flags: nowait skipifnotsilent; Check: IsUpdat
 Type: filesandordirs; Name: "{app}"
 
 [Code]
+const
+  SHCNE_ASSOCCHANGED = $08000000;
+  SHCNF_IDLIST = $0000;
+
+procedure SHChangeNotify(wEventId: LongWord; uFlags: LongWord; dwItem1: Integer; dwItem2: Integer);
+  external 'SHChangeNotify@shell32.dll stdcall';
+
 function IsUpdateMode: Boolean;
 var
   Index: Integer;
@@ -81,4 +92,10 @@ begin
       Result := True;
       Exit;
     end;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+    SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, 0, 0);
 end;

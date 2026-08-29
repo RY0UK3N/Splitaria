@@ -112,11 +112,17 @@ public sealed partial class MediaScanner
     private static string BuildDestination(string root, DateTime date, string fileName, FolderPattern pattern)
     {
         var year = date.Year.ToString(CultureInfo.InvariantCulture);
+        var month = date.Month.ToString("00", CultureInfo.InvariantCulture);
+        var namedMonth = MonthNames[date.Month - 1];
         return pattern switch
         {
             FolderPattern.YearOnly => Path.Combine(root, year, fileName),
-            FolderPattern.YearAndNumericMonth => Path.Combine(root, year, date.Month.ToString("00", CultureInfo.InvariantCulture), fileName),
-            _ => Path.Combine(root, year, MonthNames[date.Month - 1], fileName)
+            FolderPattern.YearAndNumericMonth => Path.Combine(root, year, month, fileName),
+            FolderPattern.YearAndYearMonth => Path.Combine(root, year, $"{year}-{month}", fileName),
+            FolderPattern.YearAndFullDate => Path.Combine(root, year, date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), fileName),
+            FolderPattern.FlatYearAndNamedMonth => Path.Combine(root, $"{year}-{month} - {namedMonth[5..]}", fileName),
+            FolderPattern.FlatYearAndNumericMonth => Path.Combine(root, $"{year}-{month}", fileName),
+            _ => Path.Combine(root, year, namedMonth, fileName)
         };
     }
 

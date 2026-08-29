@@ -37,4 +37,4 @@ Use `Segoe UI` no aplicativo para máxima nitidez no Windows e em escalas como 1
 - não altere as proporções;
 - evite aplicar sombras externas fortes.
 
-Os arquivos oficiais ficam em `assets/brand/`. O mestre vigente é `splitaria-mark-minimal-master.png`; a primeira exploração foi preservada como `splitaria-mark-master.png`. O script `scripts/generate_brand_assets.py` recria os tamanhos derivados e o arquivo ICO.
+Os arquivos oficiais ficam em `assets/brand/`. O mestre vigente é `splitaria-mark-2026-master.png`; as explorações anteriores foram preservadas para referência. O script `scripts/generate_brand_assets.py` recria os tamanhos derivados e o arquivo ICO.

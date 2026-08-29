@@ -11,5 +11,9 @@ public enum FolderPattern
 {
     YearAndNamedMonth,
     YearAndNumericMonth,
-    YearOnly
+    YearOnly,
+    YearAndYearMonth,
+    YearAndFullDate,
+    FlatYearAndNamedMonth,
+    FlatYearAndNumericMonth
 }

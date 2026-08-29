@@ -37,6 +37,9 @@ internal static class ThemeManager
         Set("DisabledTextBrush", IsDark ? "#9A9AA5" : "#777582");
         Set("SelectionBackgroundBrush", IsDark ? "#484465" : "#E3E0FA");
         Set("SelectionStatusBrush", IsDark ? "#A7E6B5" : "#246B3A");
+        Set("SuccessTextBrush", IsDark ? "#9DDBAD" : "#367A4C");
+        Set("WarningTextBrush", IsDark ? "#F1C27D" : "#9A5B20");
+        Set("ErrorTextBrush", IsDark ? "#FFAAA3" : "#A14343");
     }
 
     private static void Set(string key, string color)

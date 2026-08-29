@@ -4,7 +4,7 @@
         xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
         Title="Visualização" Width="1120" Height="760" MinWidth="720" MinHeight="520"
-        Icon="pack://application:,,,/assets/brand/splitaria-mark-64.png"
+        Icon="pack://application:,,,/assets/brand/Splitaria.ico"
         WindowStartupLocation="CenterOwner" Background="#16161A" KeyDown="Window_KeyDown" MouseMove="Window_MouseMove"
         FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType" TextOptions.TextHintingMode="Fixed">

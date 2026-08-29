@@ -4,7 +4,7 @@
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Sobre o Splitaria" Width="510" Height="570"
         WindowStartupLocation="CenterOwner" ResizeMode="NoResize" WindowStyle="None"
-        Icon="pack://application:,,,/assets/brand/splitaria-mark-64.png"
+        Icon="pack://application:,,,/assets/brand/Splitaria.ico"
         Background="{DynamicResource WindowBackgroundBrush}">
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="44" ResizeBorderThickness="0" GlassFrameThickness="1"

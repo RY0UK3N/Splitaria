@@ -1,4 +1,5 @@
 using Splitaria.Core;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -9,6 +10,7 @@ public partial class PreferencesWindow : Window
 {
     private readonly AppSettings _settings;
     private readonly AppTheme _originalTheme;
+    private UpdateRelease? _availableRelease;
     private bool _initialized;
 
     public PreferencesWindow(AppSettings settings)
@@ -19,6 +21,7 @@ public partial class PreferencesWindow : Window
         SelectByTag(ThemeCombo, settings.Theme.ToString());
         SelectByTag(FolderPatternCombo, settings.FolderPattern.ToString());
         AutoPlayCheck.IsChecked = settings.AutoPlayVideoPreview;
+        InstalledVersionText.Text = UpdateService.CurrentVersion.ToString(3);
         _initialized = true;
     }
 
@@ -32,29 +35,51 @@ public partial class PreferencesWindow : Window
         DialogResult = true;
     }
 
-    private async void CheckUpdates_Click(object sender, RoutedEventArgs e)
+    private async void CheckUpdates_Click(object sender, RoutedEventArgs e) => await CheckUpdatesAsync();
+
+    private async Task CheckUpdatesAsync()
     {
         UpdateButton.IsEnabled = false;
+        UpdateActionsPanel.Visibility = Visibility.Collapsed;
         UpdateStatusText.Text = "Consultando atualizações…";
         try
         {
-            var release = await UpdateService.CheckAsync();
-            if (release is null)
+            _availableRelease = await UpdateService.CheckAsync();
+            if (_availableRelease is null)
             {
+                AvailableVersionText.Text = UpdateService.CurrentVersion.ToString(3);
                 UpdateStatusText.Text = "Você já está usando a versão mais recente.";
                 return;
             }
 
-            UpdateStatusText.Text = $"Nova versão disponível: {release.Tag}";
-            var choice = MessageBox.Show(
-                $"A versão {release.Tag} está disponível.\n\nDeseja baixar e instalar a atualização agora?\nO Splitaria será fechado e reaberto ao concluir.",
-                "Atualização disponível", MessageBoxButton.YesNo, MessageBoxImage.Information);
-            if (choice != MessageBoxResult.Yes) return;
+            AvailableVersionText.Text = _availableRelease.Version.ToString(3);
+            UpdateStatusText.Text = "Uma nova versão está pronta para download.";
+            UpdateActionsPanel.Visibility = Visibility.Visible;
+        }
+        catch (Exception ex)
+        {
+            AvailableVersionText.Text = "Não foi possível consultar";
+            UpdateStatusText.Text = $"Não foi possível verificar: {ex.Message}";
+        }
+        finally
+        {
+            UpdateButton.IsEnabled = true;
+        }
+    }
+
+    private async void InstallUpdate_Click(object sender, RoutedEventArgs e)
+    {
+        if (_availableRelease is null) return;
+        UpdateButton.IsEnabled = false;
+        InstallUpdateButton.IsEnabled = false;
+        try
+        {
+            var release = _availableRelease;
 
             var progress = new Progress<int>(percent =>
             {
                 UpdateStatusText.Text = $"Baixando atualização… {percent}%";
-                UpdateButton.Content = $"Baixando… {percent}%";
+                InstallUpdateButton.Content = $"Baixando… {percent}%";
             });
             var installer = await UpdateService.DownloadAsync(release, progress);
             UpdateStatusText.Text = "Download concluído. Iniciando a atualização…";
@@ -67,10 +92,19 @@ public partial class PreferencesWindow : Window
         }
         finally
         {
-            UpdateButton.Content = "Verificar atualizações";
             UpdateButton.IsEnabled = true;
+            InstallUpdateButton.Content = "Baixar e instalar";
+            InstallUpdateButton.IsEnabled = true;
         }
     }
+
+    private void OpenRepository_Click(object sender, RoutedEventArgs e) => OpenUrl("https://github.com/RY0UK3N/Splitaria");
+    private void OpenReleaseNotes_Click(object sender, RoutedEventArgs e)
+    {
+        if (_availableRelease is not null) OpenUrl(_availableRelease.PageUrl);
+    }
+
+    private static void OpenUrl(string url) => Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
 
     private static string SelectedTag(ComboBox combo) => (combo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "System";
     private static void SelectByTag(ComboBox combo, string tag) => combo.SelectedItem = combo.Items.Cast<ComboBoxItem>().First(item => Equals(item.Tag, tag));

@@ -5,7 +5,7 @@
         xmlns:core="clr-namespace:Splitaria.Core;assembly=Splitaria.Core"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Splitaria" Width="1040" Height="680" MinWidth="1040" MinHeight="680"
-        Icon="pack://application:,,,/assets/brand/splitaria-mark-64.png"
+        Icon="pack://application:,,,/assets/brand/Splitaria.ico"
         WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize"
         Background="{DynamicResource WindowBackgroundBrush}" StateChanged="Window_StateChanged" SourceInitialized="Window_SourceInitialized"
         FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True"
@@ -18,18 +18,23 @@
 
         <Border Grid.Row="0" Background="Transparent" BorderThickness="0">
             <Grid>
-                <Button x:Name="BrandMenuButton" Width="38" Height="34" Margin="12,5,0,0" Padding="5"
+                <Button x:Name="BrandMenuButton" Height="34" Margin="12,5,0,0" Padding="7,5,11,5"
                         HorizontalAlignment="Left" VerticalAlignment="Top" Style="{StaticResource GhostButtonStyle}"
-                        ToolTip="Menu do Splitaria" Click="BrandMenu_Click" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                        Click="BrandMenu_Click" shell:WindowChrome.IsHitTestVisibleInChrome="True">
                     <Button.ContextMenu>
                         <ContextMenu Placement="Bottom">
                             <MenuItem Header="Preferências" Click="Preferences_Click" />
-                            <Separator />
                             <MenuItem Header="Sobre o Splitaria" Click="About_Click" />
+                            <Separator />
                             <MenuItem Header="Sair" Click="Exit_Click" />
                         </ContextMenu>
                     </Button.ContextMenu>
-                    <Image Source="pack://application:,,,/assets/brand/splitaria-mark-64.png" Width="24" Height="24" />
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="pack://application:,,,/assets/brand/splitaria-mark-64.png" Width="24" Height="24" Margin="0,0,8,0" />
+                        <TextBlock Text="Splitaria" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <TextBlock Text=" · " FontSize="13" Foreground="{DynamicResource MutedTextBrush}" VerticalAlignment="Center" />
+                        <TextBlock x:Name="TopVersionText" FontSize="13" Foreground="{DynamicResource MutedTextBrush}" VerticalAlignment="Center" />
+                    </StackPanel>
                 </Button>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top"
                             shell:WindowChrome.IsHitTestVisibleInChrome="True">
@@ -69,7 +74,7 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0">
                                 <TextBlock Text="Pastas de origem" FontSize="16" FontWeight="SemiBold" />
-                                <TextBlock Text="Adicione uma ou mais pastas para organizar juntas." FontSize="12" Foreground="{StaticResource MutedTextBrush}" Margin="0,4,0,14" />
+                                <TextBlock Text="Adicione uma ou mais pastas para organizar juntas." FontSize="12" Foreground="{DynamicResource MutedTextBrush}" Margin="0,4,0,14" />
                             </StackPanel>
                             <ListBox Grid.Row="1" x:Name="SourceFoldersList" MinHeight="76" BorderThickness="0" Background="{DynamicResource ControlBackgroundBrush}"
                                      Padding="5" SelectionMode="Extended" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -172,7 +177,7 @@
                             <DockPanel>
                                 <StackPanel>
                                     <TextBlock Text="Revisão dos arquivos" FontSize="18" FontWeight="SemiBold" />
-                                    <TextBlock x:Name="SummaryText" Text="Escolha as pastas e analise para montar a prévia." FontSize="12" Foreground="{StaticResource MutedTextBrush}" Margin="0,4,0,0" />
+                                    <TextBlock x:Name="SummaryText" Text="Escolha as pastas e analise para montar a prévia." FontSize="12" Foreground="{DynamicResource MutedTextBrush}" Margin="0,4,0,0" />
                                 </StackPanel>
                             </DockPanel>
                         </Grid>
@@ -270,12 +275,12 @@
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock x:Name="StatusDot" Text="●" Foreground="#4FA269" FontSize="10" Margin="0,0,7,0" VerticalAlignment="Center" />
-                                            <TextBlock x:Name="StatusLabel" Text="{Binding StatusLabel}" Foreground="#367A4C" FontSize="12" VerticalAlignment="Center" />
+                                            <TextBlock x:Name="StatusDot" Text="●" Foreground="{DynamicResource SuccessTextBrush}" FontSize="10" Margin="0,0,7,0" VerticalAlignment="Center" />
+                                            <TextBlock x:Name="StatusLabel" Text="{Binding StatusLabel}" Foreground="{DynamicResource SuccessTextBrush}" FontSize="12" VerticalAlignment="Center" />
                                         </StackPanel>
                                         <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding HasDuplicateIssue}" Value="True"><Setter TargetName="StatusDot" Property="Foreground" Value="#D8943B" /><Setter TargetName="StatusLabel" Property="Foreground" Value="#9A5B20" /></DataTrigger>
-                                            <DataTrigger Binding="{Binding DuplicateKind}" Value="{x:Static core:DuplicateKind.IdenticalAtDestination}"><Setter TargetName="StatusDot" Property="Foreground" Value="#CF6060" /><Setter TargetName="StatusLabel" Property="Foreground" Value="#A14343" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding HasDuplicateIssue}" Value="True"><Setter TargetName="StatusDot" Property="Foreground" Value="{DynamicResource WarningTextBrush}" /><Setter TargetName="StatusLabel" Property="Foreground" Value="{DynamicResource WarningTextBrush}" /></DataTrigger>
+                                            <DataTrigger Binding="{Binding DuplicateKind}" Value="{x:Static core:DuplicateKind.IdenticalAtDestination}"><Setter TargetName="StatusDot" Property="Foreground" Value="{DynamicResource ErrorTextBrush}" /><Setter TargetName="StatusLabel" Property="Foreground" Value="{DynamicResource ErrorTextBrush}" /></DataTrigger>
                                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                 <Setter TargetName="StatusDot" Property="Foreground" Value="{DynamicResource SelectionStatusBrush}" />
                                                 <Setter TargetName="StatusLabel" Property="Foreground" Value="{DynamicResource SelectionStatusBrush}" />
@@ -307,7 +312,7 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,3"><TextBlock Text="◷" Foreground="{DynamicResource MutedTextBrush}" Width="24" /><TextBlock x:Name="SelectedDateText" Foreground="{DynamicResource MutedTextBrush}" /></StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,3"><TextBlock Text="↖" Foreground="{DynamicResource MutedTextBrush}" Width="24" /><TextBlock x:Name="SelectedSourceText" Foreground="{DynamicResource MutedTextBrush}" TextTrimming="CharacterEllipsis" /></StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,3"><TextBlock Text="↘" Foreground="{DynamicResource MutedTextBrush}" Width="24" /><TextBlock x:Name="SelectedDestinationText" Foreground="{DynamicResource MutedTextBrush}" TextTrimming="CharacterEllipsis" /></StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="0,3"><TextBlock Text="◇" Foreground="#85858F" Width="24" /><TextBlock x:Name="SelectedDuplicateText" Foreground="#4A825A" TextTrimming="CharacterEllipsis" /></StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,3"><TextBlock Text="◇" Foreground="{DynamicResource MutedTextBrush}" Width="24" /><TextBlock x:Name="SelectedDuplicateText" Foreground="{DynamicResource SuccessTextBrush}" TextTrimming="CharacterEllipsis" /></StackPanel>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -344,7 +349,10 @@
                             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                                 <Button x:Name="OpenPhotosButton" Content="Ver fotos" Margin="4,0" Padding="15,8" Click="OpenPhotos_Click" />
                                 <Button x:Name="OpenVideosButton" Content="Ver vídeos" Margin="4,0" Padding="15,8" Click="OpenVideos_Click" />
-                                <Button Content="Nova organização" Style="{StaticResource PrimaryButtonStyle}" Margin="4,0,0,0" Padding="17,8" Click="NewOrganization_Click" />
+                                <Button Style="{StaticResource PrimaryButtonStyle}" Margin="4,0,0,0" Padding="17,8" Click="NewOrganization_Click">
+                                    <TextBlock Text="Nova organização" FontWeight="SemiBold"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                </Button>
                             </StackPanel>
                         </Grid>
                     </Border>

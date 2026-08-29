@@ -25,6 +25,18 @@ try
     var yearOnly = await scanner.ScanAsync(new ScanOptions([source], destination, destination,
         FolderPattern: FolderPattern.YearOnly));
     Check("Monta pasta somente por ano", Path.GetDirectoryName(yearOnly[0].DestinationPath) == Path.Combine(destination, "2026"));
+    var yearAndYearMonth = await scanner.ScanAsync(new ScanOptions([source], destination, destination,
+        FolderPattern: FolderPattern.YearAndYearMonth));
+    Check("Monta pasta por ano e ano-mês", yearAndYearMonth[0].DestinationPath.Contains(Path.Combine("2026", "2026-08")));
+    var yearAndFullDate = await scanner.ScanAsync(new ScanOptions([source], destination, destination,
+        FolderPattern: FolderPattern.YearAndFullDate));
+    Check("Monta pasta por ano e data completa", yearAndFullDate[0].DestinationPath.Contains(Path.Combine("2026", "2026-08-27")));
+    var flatNamedMonth = await scanner.ScanAsync(new ScanOptions([source], destination, destination,
+        FolderPattern: FolderPattern.FlatYearAndNamedMonth));
+    Check("Monta pasta ano-mês com nome na raiz", Path.GetDirectoryName(flatNamedMonth[0].DestinationPath) == Path.Combine(destination, "2026-08 - Agosto"));
+    var flatNumericMonth = await scanner.ScanAsync(new ScanOptions([source], destination, destination,
+        FolderPattern: FolderPattern.FlatYearAndNumericMonth));
+    Check("Monta pasta ano-mês na raiz", Path.GetDirectoryName(flatNumericMonth[0].DestinationPath) == Path.Combine(destination, "2026-08"));
 
     var organizer = new MediaOrganizer();
     var organized = await organizer.CopyAsync(result, DuplicateAction.Skip);

@@ -5,15 +5,13 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.ComponentModel;
-using Brush = System.Windows.Media.Brush;
-using Color = System.Windows.Media.Color;
-using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace Splitaria.App;
 
@@ -41,6 +39,9 @@ public partial class MainWindow : Window
         PreviewVideo.MediaPlayer = _previewPlayer;
         FilesGrid.ItemsSource = _items;
         SourceFoldersList.ItemsSource = _sourceFolders;
+        var version = Assembly.GetExecutingAssembly().GetName().Version ?? new Version();
+        TopVersionText.Text = version.ToString(3);
+        BrandMenuButton.ToolTip = "Abrir menu do Splitaria";
         SetDefaultDestinations();
         RestoreWindowPlacement();
     }
@@ -365,9 +366,9 @@ public partial class MainWindow : Window
         SelectedDestinationText.Text = $"Destino: {item.DestinationPath}";
         SelectedDuplicateText.Text = item.HasDuplicateIssue
             ? $"Atenção: {item.StatusLabel}{(item.DuplicateOf is null ? "" : $" · {item.DuplicateOf}")}" : "Sem duplicidade detectada";
-        SelectedDuplicateText.Foreground = item.HasDuplicateIssue
-            ? new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(160, 73, 32))
-            : new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(55, 125, 78));
+        SelectedDuplicateText.SetResourceReference(TextBlock.ForegroundProperty, item.HasDuplicateIssue
+            ? item.DuplicateKind == DuplicateKind.IdenticalAtDestination ? "ErrorTextBrush" : "WarningTextBrush"
+            : "SuccessTextBrush");
         LoadPreview(item);
     }
 
@@ -494,7 +495,7 @@ public partial class MainWindow : Window
                 ? "O espaço necessário será calculado após a análise."
                 : "Selecione arquivos para calcular o espaço necessário.";
             SpaceStatusText.ToolTip = null;
-            SpaceStatusText.Foreground = (Brush)FindResource("MutedTextBrush");
+            SpaceStatusText.SetResourceReference(TextBlock.ForegroundProperty, "MutedTextBrush");
             return;
         }
 
@@ -525,9 +526,8 @@ public partial class MainWindow : Window
         SpaceStatusText.ToolTip = string.Join(Environment.NewLine, volumes.Select(volume => volume.IsKnown
             ? $"{volume.Root}: {FormatBytes(volume.Required)} necessários · {FormatBytes(volume.Available)} livres"
             : $"{volume.Root}: espaço livre não disponível"));
-        SpaceStatusText.Foreground = _hasEnoughSpace
-            ? (Brush)FindResource("MutedTextBrush")
-            : new SolidColorBrush(Color.FromRgb(184, 70, 48));
+        SpaceStatusText.SetResourceReference(TextBlock.ForegroundProperty,
+            _hasEnoughSpace ? "MutedTextBrush" : "ErrorTextBrush");
     }
 
     private static VolumeSpace GetVolumeSpace(string root, long required)
@@ -608,7 +608,7 @@ public partial class MainWindow : Window
         StatusText.Text = "Pronto para analisar";
         SpaceStatusText.Text = "O espaço necessário será calculado após a análise.";
         SpaceStatusText.ToolTip = null;
-        SpaceStatusText.Foreground = (Brush)FindResource("MutedTextBrush");
+        SpaceStatusText.SetResourceReference(TextBlock.ForegroundProperty, "MutedTextBrush");
         ProgressBar.Value = 0; ClearPreview();
     }
 

@@ -41,7 +41,7 @@ atenção.
     <td valign="top">Compara o conteúdo e avisa sobre repetições ou conflitos no destino.</td>
   </tr>
   <tr>
-    <td valign="top"><strong>Resultado:</strong> pastas como <code>2026/03 - Março</code>, <code>2026/03</code> ou somente <code>2026</code>.</td>
+    <td valign="top"><strong>Resultado:</strong> escolha entre sete padrões, como <code>2026/03 - Março</code>, <code>2026/2026-03-08</code> ou <code>2026-03</code>.</td>
     <td valign="top"><strong>Resultado:</strong> nenhuma cópia começa sem que o lote esteja claro para você.</td>
     <td valign="top"><strong>Resultado:</strong> arquivos existentes nunca são substituídos silenciosamente.</td>
   </tr>
@@ -71,9 +71,9 @@ atenção.
 
 ## Versão atual
 
-**Splitaria 0.20.0 · Windows 64 bits · Instalador por usuário**
+**Splitaria 0.21.0 · Windows 64 bits · Instalador por usuário**
 
-Baixe `Splitaria-Setup-0.20.0-win-x64.exe` na página de
+Baixe `Splitaria-Setup-0.21.0-win-x64.exe` na página de
 [releases](https://github.com/RY0UK3N/Splitaria/releases/latest). A instalação
 normalmente não exige privilégios administrativos e já inclui o runtime e os
 componentes necessários para a reprodução de vídeos.
