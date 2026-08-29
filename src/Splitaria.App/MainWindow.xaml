@@ -62,7 +62,9 @@
 
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                    <Border Grid.Row="0" Background="Transparent" BorderThickness="0" Padding="12,10,12,18" Margin="0,0,0,4">
+                    <Border x:Name="SourceDropZone" Grid.Row="0" Background="Transparent" BorderThickness="0" Padding="12,10,12,18" Margin="0,0,0,4"
+                            AllowDrop="True" DragEnter="SourceDropZone_DragEnter" DragOver="SourceDropZone_DragOver"
+                            DragLeave="SourceDropZone_DragLeave" Drop="SourceDropZone_Drop">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0">
@@ -98,7 +100,16 @@
                                         </Setter.Value></Setter>
                                     </Style>
                                 </ListBox.ItemContainerStyle>
-                            </ListBox>
+                             </ListBox>
+                            <Border x:Name="SourceDropOverlay" Grid.Row="1" Visibility="Collapsed" IsHitTestVisible="False"
+                                    Background="{DynamicResource InfoBackgroundBrush}" BorderBrush="{StaticResource AccentBrush}"
+                                    BorderThickness="2" CornerRadius="8" Margin="0" Opacity="0.96">
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="↓" FontSize="24" Foreground="{DynamicResource InfoTextBrush}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="Solte as pastas aqui" FontWeight="SemiBold" Foreground="{DynamicResource InfoTextBrush}" Margin="0,5,0,0" />
+                                    <TextBlock Text="Você pode adicionar várias de uma vez" FontSize="11" Foreground="{DynamicResource MutedTextBrush}" Margin="0,3,0,0" />
+                                </StackPanel>
+                            </Border>
                             <Grid Grid.Row="2" Margin="0,9,0,0">
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                                 <CheckBox x:Name="SubfoldersCheckBox" Content="Incluir subpastas" IsChecked="True" Margin="3,0,12,0" VerticalAlignment="Center" />
@@ -342,11 +353,14 @@
                         <Grid>
                             <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
                             <StackPanel VerticalAlignment="Center" Margin="2,0,24,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="●" Foreground="#52A66C" FontSize="10" Margin="0,0,7,0" />
-                                    <TextBlock x:Name="StatusText" Text="Pronto para analisar" FontSize="12" Foreground="{DynamicResource MutedTextBrush}" />
-                                </StackPanel>
-                                <ProgressBar x:Name="ProgressBar" Height="4" Minimum="0" Maximum="100" Margin="0,8,0,0" />
+                                 <StackPanel Orientation="Horizontal">
+                                     <TextBlock Text="●" Foreground="#52A66C" FontSize="10" Margin="0,0,7,0" />
+                                     <TextBlock x:Name="StatusText" Text="Pronto para analisar" FontSize="12" Foreground="{DynamicResource MutedTextBrush}" />
+                                 </StackPanel>
+                                <TextBlock x:Name="SpaceStatusText" Text="O espaço necessário será calculado após a análise."
+                                           FontSize="11" Foreground="{DynamicResource MutedTextBrush}" Margin="0,4,0,0"
+                                           TextTrimming="CharacterEllipsis" />
+                                 <ProgressBar x:Name="ProgressBar" Height="4" Minimum="0" Maximum="100" Margin="0,8,0,0" />
                             </StackPanel>
                             <Button Grid.Column="1" x:Name="OrganizeButton" Style="{StaticResource PrimaryButtonStyle}"
                                     IsEnabled="False" MinWidth="190" Click="Organize_Click">

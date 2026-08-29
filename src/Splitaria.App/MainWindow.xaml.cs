@@ -8,8 +8,12 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.ComponentModel;
+using Brush = System.Windows.Media.Brush;
+using Color = System.Windows.Media.Color;
+using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace Splitaria.App;
 
@@ -25,6 +29,7 @@ public partial class MainWindow : Window
     private Media? _previewMedia;
     private string? _currentPreviewPath;
     private int _previewRequest;
+    private bool _hasEnoughSpace = true;
     private AppSettings Settings => ((App)Application.Current).Settings;
 
     public MainWindow()
@@ -146,6 +151,56 @@ public partial class MainWindow : Window
         InvalidateAnalysis();
     }
 
+    private void SourceDropZone_DragEnter(object sender, DragEventArgs e) => UpdateSourceDropState(e);
+    private void SourceDropZone_DragOver(object sender, DragEventArgs e) => UpdateSourceDropState(e);
+
+    private void UpdateSourceDropState(DragEventArgs e)
+    {
+        var hasDirectories = GetDroppedDirectories(e).Length > 0;
+        e.Effects = hasDirectories ? DragDropEffects.Copy : DragDropEffects.None;
+        SourceDropOverlay.Visibility = hasDirectories ? Visibility.Visible : Visibility.Collapsed;
+        e.Handled = true;
+    }
+
+    private void SourceDropZone_DragLeave(object sender, DragEventArgs e)
+    {
+        SourceDropOverlay.Visibility = Visibility.Collapsed;
+        e.Handled = true;
+    }
+
+    private void SourceDropZone_Drop(object sender, DragEventArgs e)
+    {
+        SourceDropOverlay.Visibility = Visibility.Collapsed;
+        var directories = GetDroppedDirectories(e);
+        var added = 0;
+        foreach (var directory in directories)
+        {
+            var fullPath = Path.GetFullPath(directory);
+            if (_sourceFolders.Contains(fullPath, StringComparer.OrdinalIgnoreCase)) continue;
+            _sourceFolders.Add(fullPath);
+            added++;
+        }
+
+        if (added > 0)
+        {
+            InvalidateAnalysis();
+            StatusText.Text = added == 1 ? "1 pasta adicionada" : $"{added} pastas adicionadas";
+        }
+        else if (directories.Length > 0)
+        {
+            StatusText.Text = "As pastas soltas já estavam na origem";
+        }
+
+        e.Handled = true;
+    }
+
+    private static string[] GetDroppedDirectories(DragEventArgs e)
+    {
+        if (!e.Data.GetDataPresent(DataFormats.FileDrop) || e.Data.GetData(DataFormats.FileDrop) is not string[] paths)
+            return [];
+        return paths.Where(Directory.Exists).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+    }
+
     private void RemoveSource_Click(object sender, RoutedEventArgs e)
     {
         var selected = SourceFoldersList.SelectedItems.Cast<string>().ToArray();
@@ -205,7 +260,6 @@ public partial class MainWindow : Window
             RefreshSelectionSummary();
             StatusText.Text = result.Count == 0 ? "Nenhuma foto ou vídeo encontrado" : "Análise concluída — revise a seleção";
             ProgressBar.Value = result.Count == 0 ? 0 : 100;
-            OrganizeButton.IsEnabled = result.Any(item => item.IsSelected);
             if (_items.Count > 0) FilesGrid.SelectedIndex = 0;
         }
         catch (Exception ex)
@@ -217,11 +271,19 @@ public partial class MainWindow : Window
         finally
         {
             AnalyzeButton.IsEnabled = true;
+            UpdateOrganizeButtonState();
         }
     }
 
     private async void Organize_Click(object sender, RoutedEventArgs e)
     {
+        RefreshSpaceSummary();
+        if (!_hasEnoughSpace)
+        {
+            StatusText.Text = "Espaço insuficiente no destino";
+            return;
+        }
+
         var selected = _items.Where(item => item.IsSelected).ToArray();
         if (selected.Length == 0) return;
         var duplicateAction = DuplicateAction.Skip;
@@ -418,8 +480,84 @@ public partial class MainWindow : Window
         var duplicates = _items.Count(item => item.HasDuplicateIssue);
         var selected = _items.Count(item => item.IsSelected);
         SummaryText.Text = $"{_items.Count} arquivos  •  {photos} fotos  •  {videos} vídeos  •  {duplicates} alertas  •  {selected} selecionados";
-        OrganizeButton.IsEnabled = selected > 0 && AnalyzeButton.IsEnabled;
+        RefreshSpaceSummary();
+        UpdateOrganizeButtonState();
     }
+
+    private void RefreshSpaceSummary()
+    {
+        var selected = _items.Where(item => item.IsSelected).ToArray();
+        if (selected.Length == 0)
+        {
+            _hasEnoughSpace = true;
+            SpaceStatusText.Text = _items.Count == 0
+                ? "O espaço necessário será calculado após a análise."
+                : "Selecione arquivos para calcular o espaço necessário.";
+            SpaceStatusText.ToolTip = null;
+            SpaceStatusText.Foreground = (Brush)FindResource("MutedTextBrush");
+            return;
+        }
+
+        var requirements = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase);
+        var sizesKnown = true;
+        foreach (var item in selected)
+        {
+            try
+            {
+                var root = Path.GetPathRoot(Path.GetFullPath(item.DestinationPath));
+                if (string.IsNullOrWhiteSpace(root)) { sizesKnown = false; continue; }
+                requirements[root] = requirements.GetValueOrDefault(root) + new FileInfo(item.SourcePath).Length;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                sizesKnown = false;
+            }
+        }
+
+        var volumes = requirements.Select(pair => GetVolumeSpace(pair.Key, pair.Value)).ToArray();
+        _hasEnoughSpace = volumes.All(volume => !volume.IsKnown || volume.Required <= volume.Available);
+        var requiredTotal = requirements.Values.Sum();
+        var unknownSpace = volumes.Any(volume => !volume.IsKnown);
+        var suffix = !_hasEnoughSpace ? "espaço insuficiente"
+            : unknownSpace || !sizesKnown ? "estimativa parcial"
+            : "espaço suficiente";
+        SpaceStatusText.Text = $"Espaço: {FormatBytes(requiredTotal)} necessários • {suffix}";
+        SpaceStatusText.ToolTip = string.Join(Environment.NewLine, volumes.Select(volume => volume.IsKnown
+            ? $"{volume.Root}: {FormatBytes(volume.Required)} necessários · {FormatBytes(volume.Available)} livres"
+            : $"{volume.Root}: espaço livre não disponível"));
+        SpaceStatusText.Foreground = _hasEnoughSpace
+            ? (Brush)FindResource("MutedTextBrush")
+            : new SolidColorBrush(Color.FromRgb(184, 70, 48));
+    }
+
+    private static VolumeSpace GetVolumeSpace(string root, long required)
+    {
+        try
+        {
+            var drive = new DriveInfo(root);
+            return drive.IsReady
+                ? new VolumeSpace(root.TrimEnd(Path.DirectorySeparatorChar), required, drive.AvailableFreeSpace, true)
+                : new VolumeSpace(root, required, 0, false);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            return new VolumeSpace(root, required, 0, false);
+        }
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        var value = (double)Math.Max(0, bytes);
+        var unit = 0;
+        while (value >= 1024 && unit < units.Length - 1) { value /= 1024; unit++; }
+        return $"{value:0.#} {units[unit]}";
+    }
+
+    private void UpdateOrganizeButtonState() =>
+        OrganizeButton.IsEnabled = AnalyzeButton.IsEnabled && _hasEnoughSpace && _items.Any(item => item.IsSelected);
+
+    private sealed record VolumeSpace(string Root, long Required, long Available, bool IsKnown);
 
     private void About_Click(object sender, RoutedEventArgs e) =>
         new AboutWindow { Owner = this }.ShowDialog();
@@ -464,9 +602,14 @@ public partial class MainWindow : Window
     private void InvalidateAnalysis()
     {
         HideCompletion();
+        _hasEnoughSpace = true;
         _items.Clear(); OrganizeButton.IsEnabled = false;
         SummaryText.Text = "Escolha as pastas e analise para montar a prévia.";
-        StatusText.Text = "Pronto para analisar"; ProgressBar.Value = 0; ClearPreview();
+        StatusText.Text = "Pronto para analisar";
+        SpaceStatusText.Text = "O espaço necessário será calculado após a análise.";
+        SpaceStatusText.ToolTip = null;
+        SpaceStatusText.Foreground = (Brush)FindResource("MutedTextBrush");
+        ProgressBar.Value = 0; ClearPreview();
     }
 
     private void ClearPreview()
@@ -481,7 +624,8 @@ public partial class MainWindow : Window
 
     private void SetBusy(bool busy, string status)
     {
-        AnalyzeButton.IsEnabled = !busy; OrganizeButton.IsEnabled = !busy && _items.Any(item => item.IsSelected);
+        AnalyzeButton.IsEnabled = !busy;
+        OrganizeButton.IsEnabled = !busy && _hasEnoughSpace && _items.Any(item => item.IsSelected);
         StatusText.Text = status; ProgressBar.Value = 0;
     }
 

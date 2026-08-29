@@ -1,5 +1,5 @@
 #ifndef MyAppVersion
-  #define MyAppVersion "0.19.2"
+  #define MyAppVersion "0.20.0"
 #endif
 #ifndef PublishDir
   #define PublishDir "..\publish\installer-input"
