@@ -44,6 +44,18 @@ try
     Check("Detalha fotos copiadas", organized.CopiedPhotos == 1 && organized.CopiedVideos == 0);
     Check("Não sobrescreve", (await organizer.CopyAsync(result, DuplicateAction.Skip)).Skipped == 1);
 
+    var identical = await scanner.ScanAsync(new ScanOptions([source], destination, destination));
+    identical[0].IsSelected = true;
+    var keptBoth = await organizer.CopyAsync(identical, DuplicateAction.KeepBoth);
+    var copyPath = Path.Combine(Path.GetDirectoryName(identical[0].DestinationPath)!,
+        $"{Path.GetFileNameWithoutExtension(identical[0].DestinationPath)} (2){Path.GetExtension(identical[0].DestinationPath)}");
+    Check("Cria cópia de arquivo idêntico", keptBoth.Copied == 1 && File.Exists(copyPath));
+
+    await File.WriteAllTextAsync(photoPath, "updated");
+    var conflict = await scanner.ScanAsync(new ScanOptions([source], destination, destination));
+    var replaced = await organizer.CopyAsync(conflict, DuplicateAction.Replace);
+    Check("Substitui arquivo em conflito", replaced.Copied == 1 && await File.ReadAllTextAsync(conflict[0].DestinationPath) == "updated");
+
     var duplicatePath = Path.Combine(source, "copia_20260827.jpg");
     File.Copy(photoPath, duplicatePath);
     var duplicates = await scanner.ScanAsync(new ScanOptions([source], Path.Combine(testRoot, "photos-2"), destination));

@@ -2,7 +2,7 @@ using System.IO;
 
 namespace Splitaria.Core;
 
-public enum DuplicateAction { Skip, KeepBoth }
+public enum DuplicateAction { Skip, KeepBoth, Replace }
 public sealed record OrganizationResult(int CopiedPhotos, int CopiedVideos, int Skipped, int Failed)
 {
     public int Copied => CopiedPhotos + CopiedVideos;
@@ -22,19 +22,31 @@ public sealed class MediaOrganizer
             var item = selected[index];
             try
             {
-                if (item.DuplicateKind == DuplicateKind.IdenticalAtDestination ||
-                    item.DuplicateKind == DuplicateKind.InSource && duplicateAction == DuplicateAction.Skip) skipped++;
+                if (item.HasDuplicateIssue && duplicateAction == DuplicateAction.Skip) skipped++;
                 else
                 {
                     var destinationPath = item.DestinationPath;
                     if (File.Exists(destinationPath))
                     {
-                        if (duplicateAction == DuplicateAction.Skip) { skipped++; progress?.Report((index + 1, selected.Length)); continue; }
-                        destinationPath = GetAvailableName(destinationPath);
+                        if (duplicateAction == DuplicateAction.Skip)
+                        {
+                            skipped++;
+                            progress?.Report((index + 1, selected.Length));
+                            continue;
+                        }
+                        if (duplicateAction == DuplicateAction.KeepBoth)
+                            destinationPath = GetAvailableName(destinationPath);
+                        else if (Path.GetFullPath(item.SourcePath).Equals(Path.GetFullPath(destinationPath), StringComparison.OrdinalIgnoreCase))
+                        {
+                            skipped++;
+                            progress?.Report((index + 1, selected.Length));
+                            continue;
+                        }
                     }
                     Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
                     await using var source = new FileStream(item.SourcePath, FileMode.Open, FileAccess.Read, FileShare.Read, 81920, true);
-                    await using var destination = new FileStream(destinationPath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 81920, true);
+                    var createMode = duplicateAction == DuplicateAction.Replace ? FileMode.Create : FileMode.CreateNew;
+                    await using var destination = new FileStream(destinationPath, createMode, FileAccess.Write, FileShare.None, 81920, true);
                     await source.CopyToAsync(destination, cancellationToken);
                     File.SetLastWriteTime(destinationPath, File.GetLastWriteTime(item.SourcePath));
                     if (item.Kind == MediaKind.Photo) copiedPhotos++;

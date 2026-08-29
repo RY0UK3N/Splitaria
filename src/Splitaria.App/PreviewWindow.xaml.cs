@@ -15,7 +15,10 @@ public partial class PreviewWindow : Window
     private Media? _videoMedia;
     private readonly AppSettings _settings;
     private readonly DispatcherTimer _controlsTimer;
+    private readonly DispatcherTimer _settingsSaveTimer;
     private bool _isPlaying;
+    private bool _isMuted;
+    private int _lastAudibleVolume = 50;
     private bool _updatingTimeline;
     private bool _controlsReady;
     private bool _isClosing;
@@ -26,16 +29,21 @@ public partial class PreviewWindow : Window
         _settings = ((App)Application.Current).Settings;
         _controlsTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2.5) };
         _controlsTimer.Tick += ControlsTimer_Tick;
+        _settingsSaveTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(450) };
+        _settingsSaveTimer.Tick += SettingsSaveTimer_Tick;
         Title = $"{item.Name} — Splitaria";
+        WindowTitleText.Text = item.Name;
         PathText.Text = item.SourcePath;
         _isVideo = item.Kind == MediaKind.Video;
 
         if (_isVideo)
         {
+            _isMuted = _settings.VideoMuted;
+            if (_settings.VideoVolume > 0) _lastAudibleVolume = Math.Clamp(_settings.VideoVolume, 1, 100);
             _videoPlayer = new MediaPlayer(VideoEngine.Shared)
             {
                 Volume = Math.Clamp(_settings.VideoVolume, 0, 100),
-                Mute = _settings.VideoMuted
+                Mute = _isMuted
             };
             _videoPlayer.Playing += VideoPlayer_Playing;
             _videoPlayer.Paused += VideoPlayer_Paused;
@@ -92,14 +100,14 @@ public partial class PreviewWindow : Window
     private void VideoPlayer_Playing(object? sender, EventArgs e) => DispatchIfOpen(() =>
     {
         _isPlaying = true;
-        PlayPauseText.Text = "Pausar";
+        UpdatePlaybackIcon();
         RestartControlsTimer();
     });
 
     private void VideoPlayer_Paused(object? sender, EventArgs e) => DispatchIfOpen(() =>
     {
         _isPlaying = false;
-        PlayPauseText.Text = "Reproduzir";
+        UpdatePlaybackIcon();
         ShowControls();
     });
 
@@ -112,7 +120,7 @@ public partial class PreviewWindow : Window
     private void VideoPlayer_EndReached(object? sender, EventArgs e) => DispatchIfOpen(() =>
     {
         _isPlaying = false;
-        PlayPauseText.Text = "Reproduzir";
+        UpdatePlaybackIcon();
         ShowControls();
     });
 
@@ -146,30 +154,113 @@ public partial class PreviewWindow : Window
         RestartControlsTimer();
     }
 
+    private void TimelineSlider_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (_videoPlayer is null || TimelineSlider.ActualWidth <= 0 || IsInsideThumb(e.OriginalSource as DependencyObject)) return;
+        var ratio = Math.Clamp(e.GetPosition(TimelineSlider).X / TimelineSlider.ActualWidth, 0, 1);
+        TimelineSlider.Value = ratio * TimelineSlider.Maximum;
+        _videoPlayer.Time = (long)TimelineSlider.Value;
+        RestartControlsTimer();
+        e.Handled = true;
+    }
+
+    private static bool IsInsideThumb(DependencyObject? element)
+    {
+        while (element is not null)
+        {
+            if (element is System.Windows.Controls.Primitives.Thumb) return true;
+            element = System.Windows.Media.VisualTreeHelper.GetParent(element);
+        }
+        return false;
+    }
+
     private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         if (!_controlsReady || _videoPlayer is null) return;
         var volume = Math.Clamp((int)Math.Round(e.NewValue), 0, 100);
         _videoPlayer.Volume = volume;
         _settings.VideoVolume = volume;
-        if (volume > 0 && _videoPlayer.Mute)
+        if (volume == 0)
         {
-            _videoPlayer.Mute = false;
-            _settings.VideoMuted = false;
+            _isMuted = true;
+            _videoPlayer.Mute = true;
+            _settings.VideoMuted = true;
+        }
+        else
+        {
+            _lastAudibleVolume = volume;
+            if (_isMuted)
+            {
+                _isMuted = false;
+                _videoPlayer.Mute = false;
+                _settings.VideoMuted = false;
+            }
         }
         UpdateMuteLabel();
+        ScheduleSettingsSave();
     }
 
     private void Mute_Click(object sender, RoutedEventArgs e)
     {
         if (_videoPlayer is null) return;
-        _videoPlayer.Mute = !_videoPlayer.Mute;
-        _settings.VideoMuted = _videoPlayer.Mute;
+        if (_isMuted)
+        {
+            if (VolumeSlider.Value <= 0) VolumeSlider.Value = _lastAudibleVolume;
+            _isMuted = false;
+        }
+        else
+        {
+            _isMuted = true;
+        }
+        _videoPlayer.Mute = _isMuted;
+        _settings.VideoMuted = _isMuted;
         UpdateMuteLabel();
+        ScheduleSettingsSave();
         RestartControlsTimer();
     }
 
-    private void UpdateMuteLabel() => MuteText.Text = _videoPlayer?.Mute == true ? "Mudo" : "Som";
+    private void UpdateMuteLabel()
+    {
+        var volume = (int)Math.Round(VolumeSlider.Value);
+        VolumeIcon.Text = _isMuted || volume == 0 ? "\uE74F"
+            : volume <= 33 ? "\uE993"
+            : volume <= 66 ? "\uE994"
+            : "\uE995";
+        MuteButton.ToolTip = _isMuted ? "Ativar áudio" : "Silenciar áudio";
+    }
+
+    private void ScheduleSettingsSave()
+    {
+        _settingsSaveTimer.Stop();
+        _settingsSaveTimer.Start();
+    }
+
+    private void SettingsSaveTimer_Tick(object? sender, EventArgs e)
+    {
+        _settingsSaveTimer.Stop();
+        _settings.Save();
+    }
+
+    private void Minimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+    private void MaximizeRestore_Click(object sender, RoutedEventArgs e) =>
+        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+    private void Close_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void Window_StateChanged(object sender, EventArgs e)
+    {
+        if (MaximizeIcon is null || RestoreIcon is null) return;
+        var maximized = WindowState == WindowState.Maximized;
+        MaximizeIcon.Visibility = maximized ? Visibility.Collapsed : Visibility.Visible;
+        RestoreIcon.Visibility = maximized ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount == 2)
+            MaximizeRestore_Click(sender, new RoutedEventArgs());
+        else if (e.ChangedButton == MouseButton.Left)
+            DragMove();
+    }
 
     private void PlayPause_Click(object sender, RoutedEventArgs e) => TogglePlayback();
 
@@ -178,8 +269,15 @@ public partial class PreviewWindow : Window
         if (_videoPlayer is null) return;
         _videoPlayer.SetPause(_isPlaying);
         _isPlaying = !_isPlaying;
-        PlayPauseText.Text = _isPlaying ? "Pausar" : "Reproduzir";
+        UpdatePlaybackIcon();
         if (_isPlaying) RestartControlsTimer(); else ShowControls();
+    }
+
+    private void UpdatePlaybackIcon()
+    {
+        PlayIcon.Visibility = _isPlaying ? Visibility.Collapsed : Visibility.Visible;
+        PauseIcon.Visibility = _isPlaying ? Visibility.Visible : Visibility.Collapsed;
+        PlayPauseButton.ToolTip = _isPlaying ? "Pausar" : "Reproduzir";
     }
 
     private void ShowVideoError()
@@ -248,6 +346,7 @@ public partial class PreviewWindow : Window
     {
         _isClosing = true;
         _controlsTimer.Stop();
+        _settingsSaveTimer.Stop();
         _settings.Save();
         if (_videoPlayer is not null)
         {

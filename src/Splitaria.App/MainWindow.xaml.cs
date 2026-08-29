@@ -291,20 +291,10 @@ public partial class MainWindow : Window
         var conflicts = selected.Count(item => item.HasDuplicateIssue);
         if (conflicts > 0)
         {
-            var choice = MessageBox.Show(
-                $"Há {conflicts} arquivo(s) duplicado(s) ou com o mesmo nome.\n\n" +
-                "Sim — manter os dois, criando nomes como ‘foto (2).jpg’.\n" +
-                "Não — ignorar duplicados e conflitos.\n" +
-                "Cancelar — voltar para a revisão.",
-                "Como tratar duplicados?", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-            if (choice == MessageBoxResult.Cancel) return;
-            duplicateAction = choice == MessageBoxResult.Yes ? DuplicateAction.KeepBoth : DuplicateAction.Skip;
+            var duplicateDialog = new DuplicateActionWindow(conflicts) { Owner = this };
+            if (duplicateDialog.ShowDialog() != true || duplicateDialog.SelectedAction is not { } selectedAction) return;
+            duplicateAction = selectedAction;
         }
-
-        var confirmation = MessageBox.Show(
-            $"Copiar {selected.Length} arquivo(s) selecionado(s)?\n\nOs originais serão preservados.",
-            "Confirmar organização", MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (confirmation != MessageBoxResult.Yes) return;
 
         SetBusy(true, $"Organizando 0/{selected.Length}…");
         var progress = new Progress<(int Current, int Total)>(value =>

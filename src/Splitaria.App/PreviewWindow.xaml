@@ -3,30 +3,90 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="Visualização" Width="1120" Height="760" MinWidth="720" MinHeight="520"
         Icon="pack://application:,,,/assets/brand/Splitaria.ico"
-        WindowStartupLocation="CenterOwner" Background="#16161A" KeyDown="Window_KeyDown" MouseMove="Window_MouseMove"
+        WindowStartupLocation="CenterOwner" WindowStyle="None" ResizeMode="CanResize" Background="#16161A"
+        KeyDown="Window_KeyDown" MouseMove="Window_MouseMove" StateChanged="Window_StateChanged"
         FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType" TextOptions.TextHintingMode="Fixed">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="44" ResizeBorderThickness="9" GlassFrameThickness="1"
+                            CornerRadius="9" UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
     <Window.Resources>
+        <Style x:Key="MediaCaptionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="46" /><Setter Property="Height" Value="44" />
+            <Setter Property="Padding" Value="0" /><Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" /><Setter Property="Foreground" Value="#F2F2F5" />
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="CaptionBorder" Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CaptionBorder" Property="Background" Value="#34343D" /></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="CaptionBorder" Property="Background" Value="#454550" /></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
+        <Style x:Key="MediaCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource MediaCaptionButtonStyle}">
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="CaptionBorder" Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CaptionBorder" Property="Background" Value="#C42B1C" /></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="CaptionBorder" Property="Background" Value="#A72317" /></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
+        <Style x:Key="MediaControlButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#18181E" />
+            <Setter Property="BorderBrush" Value="#484851" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="MediaButtonBorder" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="7" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="MediaButtonBorder" Property="Background" Value="#34343D" />
+                            <Setter TargetName="MediaButtonBorder" Property="BorderBrush" Value="#7771F2" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="MediaButtonBorder" Property="Background" Value="#454550" />
+                            <Setter TargetName="MediaButtonBorder" Property="BorderBrush" Value="#8A85F5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
         <Style x:Key="MediaSliderStyle" TargetType="Slider">
-            <Setter Property="Height" Value="20" /><Setter Property="IsMoveToPointEnabled" Value="True" />
+            <Setter Property="Height" Value="30" /><Setter Property="IsMoveToPointEnabled" Value="True" />
             <Setter Property="Template"><Setter.Value>
                 <ControlTemplate TargetType="Slider">
-                    <Grid Height="20" VerticalAlignment="Center">
-                        <primitives:Track x:Name="PART_Track" VerticalAlignment="Center">
+                    <Grid Height="30" VerticalAlignment="Center" Background="Transparent">
+                        <primitives:Track x:Name="PART_Track" Height="30" VerticalAlignment="Center">
                             <primitives:Track.DecreaseRepeatButton>
                                 <RepeatButton Command="Slider.DecreaseLarge">
-                                    <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Height="4" Background="#6F69EC" CornerRadius="2" /></ControlTemplate></RepeatButton.Template>
+                                    <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Grid Background="Transparent"><Border Height="5" Background="#6F69EC" CornerRadius="2.5" VerticalAlignment="Center" /></Grid></ControlTemplate></RepeatButton.Template>
                                 </RepeatButton>
                             </primitives:Track.DecreaseRepeatButton>
                             <primitives:Track.IncreaseRepeatButton>
                                 <RepeatButton Command="Slider.IncreaseLarge">
-                                    <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Border Height="4" Background="#55555E" CornerRadius="2" /></ControlTemplate></RepeatButton.Template>
+                                    <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Grid Background="Transparent"><Border Height="5" Background="#55555E" CornerRadius="2.5" VerticalAlignment="Center" /></Grid></ControlTemplate></RepeatButton.Template>
                                 </RepeatButton>
                             </primitives:Track.IncreaseRepeatButton>
                             <primitives:Track.Thumb>
-                                <Thumb Width="13" Height="13">
+                                <Thumb Width="15" Height="15">
                                     <Thumb.Template><ControlTemplate TargetType="Thumb"><Ellipse Fill="White" Stroke="#6F69EC" StrokeThickness="2" /></ControlTemplate></Thumb.Template>
                                 </Thumb>
                             </primitives:Track.Thumb>
@@ -37,32 +97,71 @@
         </Style>
     </Window.Resources>
     <Grid>
-        <Grid.RowDefinitions><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="22">
+        <Grid.RowDefinitions><RowDefinition Height="44" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+        <Border Grid.Row="0" Background="#202026" BorderBrush="#34343C" BorderThickness="0,0,0,1"
+                MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid>
+                <StackPanel Orientation="Horizontal" Margin="15,0,150,0" VerticalAlignment="Center">
+                    <Image Width="22" Height="22" Source="pack://application:,,,/assets/brand/splitaria-mark-64.png" Margin="0,0,9,0" />
+                    <TextBlock x:Name="WindowTitleText" Foreground="#F2F2F5" FontSize="13" FontWeight="SemiBold"
+                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button Style="{StaticResource MediaCaptionButtonStyle}" ToolTip="Minimizar" Click="Minimize_Click">
+                        <Path Data="M 0,0 L 10,0" Stroke="White" StrokeThickness="1" Width="10" Height="1" />
+                    </Button>
+                    <Button Style="{StaticResource MediaCaptionButtonStyle}" ToolTip="Maximizar" Click="MaximizeRestore_Click">
+                        <Grid Width="12" Height="12">
+                            <Border x:Name="MaximizeIcon" Width="10" Height="10" BorderBrush="White" BorderThickness="1" />
+                            <Canvas x:Name="RestoreIcon" Width="12" Height="12" Visibility="Collapsed">
+                                <Border Canvas.Left="3" Canvas.Top="1" Width="8" Height="8" BorderBrush="White" BorderThickness="1" />
+                                <Border Canvas.Left="1" Canvas.Top="3" Width="8" Height="8" Background="#202026" BorderBrush="White" BorderThickness="1" />
+                            </Canvas>
+                        </Grid>
+                    </Button>
+                    <Button Style="{StaticResource MediaCloseButtonStyle}" ToolTip="Fechar" Click="Close_Click">
+                        <Path Data="M 0,0 L 10,10 M 10,0 L 0,10" Stroke="White" StrokeThickness="1" Width="10" Height="10" Stretch="Fill" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="1" Margin="22">
             <Image x:Name="LargeImage" Stretch="Uniform" />
             <vlc:VideoView x:Name="LargeVideo" Visibility="Collapsed">
                 <Border Background="#01000000" MouseMove="Window_MouseMove" />
             </vlc:VideoView>
             <TextBlock x:Name="ErrorText" Foreground="#C9C9D0" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed" />
         </Grid>
-        <Border x:Name="ControlsBar" Grid.Row="1" Background="#F0202026" Padding="18,10">
+        <Border x:Name="ControlsBar" Grid.Row="2" Background="#F0202026" Padding="18,10">
             <StackPanel>
                 <Grid x:Name="VideoControlsPanel" Visibility="Collapsed" Margin="0,0,0,7">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="86" /><ColumnDefinition Width="*" /><ColumnDefinition Width="112" /></Grid.ColumnDefinitions>
-                    <Button x:Name="PlayPauseButton" Style="{StaticResource GhostButtonStyle}" Margin="0,0,10,0" Padding="8,5" Click="PlayPause_Click">
-                        <TextBlock x:Name="PlayPauseText" Text="Pausar" Foreground="White" FontWeight="SemiBold" />
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="48" /><ColumnDefinition Width="*" /><ColumnDefinition Width="112" /></Grid.ColumnDefinitions>
+                    <Button x:Name="PlayPauseButton" Width="38" Height="32" Style="{StaticResource MediaControlButtonStyle}"
+                            Margin="0,0,10,0" Padding="8,5" ToolTip="Pausar" Click="PlayPause_Click">
+                        <Grid Width="18" Height="18">
+                            <TextBlock x:Name="PlayIcon" Text="&#xE768;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                       FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       TextOptions.TextRenderingMode="Grayscale" Visibility="Collapsed" />
+                            <TextBlock x:Name="PauseIcon" Text="&#xE769;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                       FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       TextOptions.TextRenderingMode="Grayscale" />
+                        </Grid>
                     </Button>
                     <Slider Grid.Column="1" x:Name="TimelineSlider" Style="{StaticResource MediaSliderStyle}" Minimum="0" Maximum="1"
-                            ValueChanged="TimelineSlider_ValueChanged" />
+                            ValueChanged="TimelineSlider_ValueChanged" PreviewMouseLeftButtonDown="TimelineSlider_PreviewMouseLeftButtonDown" />
                     <TextBlock Grid.Column="2" x:Name="TimeText" Text="00:00 / 00:00" Foreground="#D4D4DA" FontSize="12"
                                VerticalAlignment="Center" HorizontalAlignment="Right" />
                 </Grid>
                 <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /><ColumnDefinition Width="105" /></Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="48" /><ColumnDefinition Width="105" /></Grid.ColumnDefinitions>
                     <TextBlock x:Name="PathText" Foreground="#AFAFB8" FontSize="12" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,18,0" />
-                    <Button Grid.Column="1" x:Name="MuteButton" Style="{StaticResource GhostButtonStyle}" Margin="0" Padding="8,4"
+                    <Button Grid.Column="1" x:Name="MuteButton" Width="38" Height="32" Style="{StaticResource MediaControlButtonStyle}" Margin="0" Padding="8,4"
                             Visibility="Collapsed" ToolTip="Ativar ou silenciar áudio" Click="Mute_Click">
-                        <TextBlock x:Name="MuteText" Text="Som" Foreground="White" FontWeight="SemiBold" />
+                        <Grid Width="18" Height="18">
+                            <TextBlock x:Name="VolumeIcon" Text="&#xE767;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                       FontSize="16" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       TextOptions.TextRenderingMode="Grayscale" />
+                        </Grid>
                     </Button>
                     <Slider Grid.Column="2" x:Name="VolumeSlider" Style="{StaticResource MediaSliderStyle}" Minimum="0" Maximum="100"
                             Visibility="Collapsed" ValueChanged="VolumeSlider_ValueChanged" />
