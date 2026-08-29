@@ -88,13 +88,24 @@ internal static class UpdateService
                 }
             }
 
-            await using var downloaded = new FileStream(partial, FileMode.Open, FileAccess.Read, FileShare.Read,
-                81920, FileOptions.Asynchronous | FileOptions.SequentialScan);
-            var actualHash = Convert.ToHexString(await SHA256.HashDataAsync(downloaded, cancellationToken));
+            string actualHash;
+            await using (var downloaded = new FileStream(partial, FileMode.Open, FileAccess.Read, FileShare.Read,
+                             81920, FileOptions.Asynchronous | FileOptions.SequentialScan))
+            {
+                actualHash = Convert.ToHexString(await SHA256.HashDataAsync(downloaded, cancellationToken));
+            }
+
             if (!actualHash.Equals(release.Installer.Sha256, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("A verificação de integridade do instalador falhou.");
 
-            File.Move(partial, destination, true);
+            try
+            {
+                File.Move(partial, destination, true);
+            }
+            catch (IOException ex)
+            {
+                throw new IOException("O instalador baixado está em uso. Feche outra instalação do Splitaria e tente novamente.", ex);
+            }
             progress?.Report(100);
             return destination;
         }
