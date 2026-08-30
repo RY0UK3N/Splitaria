@@ -224,12 +224,12 @@
                         <DataGrid.RowStyle>
                             <Style TargetType="DataGridRow">
                                 <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
-                                <Setter Property="BorderBrush" Value="Transparent" /><Setter Property="BorderThickness" Value="3,0,0,0" />
+                                <Setter Property="BorderBrush" Value="Transparent" /><Setter Property="BorderThickness" Value="0" />
                                 <Setter Property="ToolTip" Value="Arquivo pronto para copiar" />
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{DynamicResource HoverBrush}" /></Trigger>
+                                    <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="{DynamicResource ViewingBackgroundBrush}" /></Trigger>
                                     <DataTrigger Binding="{Binding IsSelected}" Value="True"><Setter Property="Background" Value="{DynamicResource SelectionBackgroundBrush}" /></DataTrigger>
-                                    <Trigger Property="IsSelected" Value="True"><Setter Property="BorderBrush" Value="{StaticResource SecondaryBrush}" /></Trigger>
                                     <DataTrigger Binding="{Binding DuplicateKind}" Value="{x:Static core:DuplicateKind.InSource}"><Setter Property="ToolTip" Value="Mesmo conteúdo encontrado em mais de uma origem" /></DataTrigger>
                                     <DataTrigger Binding="{Binding DuplicateKind}" Value="{x:Static core:DuplicateKind.IdenticalAtDestination}"><Setter Property="ToolTip" Value="Cópia idêntica já existente no destino" /></DataTrigger>
                                     <DataTrigger Binding="{Binding DuplicateKind}" Value="{x:Static core:DuplicateKind.NameConflictAtDestination}"><Setter Property="ToolTip" Value="Outro arquivo utiliza esse nome no destino" /></DataTrigger>
@@ -250,6 +250,32 @@
                             </Style>
                         </DataGrid.CellStyle>
                         <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="10" CanUserSort="False" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="Padding" Value="0" />
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="Transparent" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border x:Name="ViewingIndicator" Width="4" Height="28" HorizontalAlignment="Left"
+                                                Background="{StaticResource SecondaryBrush}" CornerRadius="0,3,3,0" Visibility="Collapsed" />
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                <Setter TargetName="ViewingIndicator" Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTemplateColumn Width="48" CanUserSort="False">
                                 <DataGridTemplateColumn.Header>
                                     <CheckBox ToolTip="Selecionar ou desmarcar todos" Click="HeaderSelectAll_Click" />

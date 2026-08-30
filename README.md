@@ -71,9 +71,9 @@ atenção.
 
 ## Versão atual
 
-**Splitaria 0.21.1 · Windows 64 bits · Instalador por usuário**
+**Splitaria 0.21.2 · Windows 64 bits · Instalador por usuário**
 
-Baixe `Splitaria-Setup-0.21.1-win-x64.exe` na página de
+Baixe `Splitaria-Setup-0.21.2-win-x64.exe` na página de
 [releases](https://github.com/RY0UK3N/Splitaria/releases/latest). A instalação
 normalmente não exige privilégios administrativos e já inclui o runtime e os
 componentes necessários para a reprodução de vídeos.

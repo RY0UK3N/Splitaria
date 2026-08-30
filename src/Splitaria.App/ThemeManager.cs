@@ -36,10 +36,14 @@ internal static class ThemeManager
         Set("DisabledButtonBrush", IsDark ? "#414148" : "#DEDDE9");
         Set("DisabledTextBrush", IsDark ? "#9A9AA5" : "#777582");
         Set("SelectionBackgroundBrush", IsDark ? "#484465" : "#E3E0FA");
+        Set("ViewingBackgroundBrush", IsDark ? "#303C40" : "#EDF9FC");
         Set("SelectionStatusBrush", IsDark ? "#A7E6B5" : "#246B3A");
         Set("SuccessTextBrush", IsDark ? "#9DDBAD" : "#367A4C");
         Set("WarningTextBrush", IsDark ? "#F1C27D" : "#9A5B20");
         Set("ErrorTextBrush", IsDark ? "#FFAAA3" : "#A14343");
+        Set("ScrollThumbBrush", IsDark ? "#565660" : "#B8B8C3");
+        Set("ScrollThumbHoverBrush", IsDark ? "#73737F" : "#8D8D9A");
+        Set("ScrollThumbPressedBrush", IsDark ? "#8A85F5" : "#6F69EC");
     }
 
     private static void Set(string key, string color)

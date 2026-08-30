@@ -24,10 +24,14 @@
         <SolidColorBrush x:Key="DisabledButtonBrush" Color="#DEDDE9" />
         <SolidColorBrush x:Key="DisabledTextBrush" Color="#777582" />
         <SolidColorBrush x:Key="SelectionBackgroundBrush" Color="#E3E0FA" />
+        <SolidColorBrush x:Key="ViewingBackgroundBrush" Color="#EDF9FC" />
         <SolidColorBrush x:Key="SelectionStatusBrush" Color="#246B3A" />
         <SolidColorBrush x:Key="SuccessTextBrush" Color="#367A4C" />
         <SolidColorBrush x:Key="WarningTextBrush" Color="#9A5B20" />
         <SolidColorBrush x:Key="ErrorTextBrush" Color="#A14343" />
+        <SolidColorBrush x:Key="ScrollThumbBrush" Color="#B8B8C3" />
+        <SolidColorBrush x:Key="ScrollThumbHoverBrush" Color="#8D8D9A" />
+        <SolidColorBrush x:Key="ScrollThumbPressedBrush" Color="#6F69EC" />
 
         <Style TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI" />
@@ -245,6 +249,88 @@
                     </Grid>
                 </ControlTemplate>
             </Setter.Value></Setter>
+        </Style>
+        <Style x:Key="VerticalSlimScrollThumbStyle" TargetType="Thumb">
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Grid Background="Transparent">
+                        <Border x:Name="ThumbBar" Width="5" HorizontalAlignment="Center"
+                                Background="{DynamicResource ScrollThumbBrush}" CornerRadius="3" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ThumbBar" Property="Width" Value="7" />
+                            <Setter TargetName="ThumbBar" Property="Background" Value="{DynamicResource ScrollThumbHoverBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                            <Setter TargetName="ThumbBar" Property="Width" Value="7" />
+                            <Setter TargetName="ThumbBar" Property="Background" Value="{DynamicResource ScrollThumbPressedBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
+        <Style x:Key="HorizontalSlimScrollThumbStyle" TargetType="Thumb">
+            <Setter Property="Template"><Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Grid Background="Transparent">
+                        <Border x:Name="ThumbBar" Height="5" VerticalAlignment="Center"
+                                Background="{DynamicResource ScrollThumbBrush}" CornerRadius="3" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ThumbBar" Property="Height" Value="7" />
+                            <Setter TargetName="ThumbBar" Property="Background" Value="{DynamicResource ScrollThumbHoverBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                            <Setter TargetName="ThumbBar" Property="Height" Value="7" />
+                            <Setter TargetName="ThumbBar" Property="Background" Value="{DynamicResource ScrollThumbPressedBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value></Setter>
+        </Style>
+        <ControlTemplate x:Key="VerticalSlimScrollBarTemplate" TargetType="ScrollBar">
+            <Grid Width="12" Background="Transparent">
+                <Track x:Name="PART_Track" IsDirectionReversed="True" ViewportSize="NaN">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False" />
+                    </Track.DecreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb Style="{StaticResource VerticalSlimScrollThumbStyle}" Height="48" />
+                    </Track.Thumb>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False" />
+                    </Track.IncreaseRepeatButton>
+                </Track>
+            </Grid>
+        </ControlTemplate>
+        <ControlTemplate x:Key="HorizontalSlimScrollBarTemplate" TargetType="ScrollBar">
+            <Grid Height="12" Background="Transparent">
+                <Track x:Name="PART_Track" ViewportSize="NaN">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton Command="ScrollBar.PageLeftCommand" Opacity="0" Focusable="False" />
+                    </Track.DecreaseRepeatButton>
+                    <Track.Thumb>
+                        <Thumb Style="{StaticResource HorizontalSlimScrollThumbStyle}" Width="48" />
+                    </Track.Thumb>
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton Command="ScrollBar.PageRightCommand" Opacity="0" Focusable="False" />
+                    </Track.IncreaseRepeatButton>
+                </Track>
+            </Grid>
+        </ControlTemplate>
+        <Style TargetType="ScrollBar">
+            <Setter Property="Width" Value="12" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Template" Value="{StaticResource VerticalSlimScrollBarTemplate}" />
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Width" Value="Auto" />
+                    <Setter Property="Height" Value="12" />
+                    <Setter Property="Template" Value="{StaticResource HorizontalSlimScrollBarTemplate}" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Application.Resources>
 </Application>
