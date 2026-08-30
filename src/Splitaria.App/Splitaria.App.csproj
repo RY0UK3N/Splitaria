@@ -15,7 +15,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <ApplicationIcon>..\..\assets\brand\Splitaria.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>0.21.3</Version>
+    <Version>0.21.4</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Splitaria.Core/Splitaria.Core.csproj" />
