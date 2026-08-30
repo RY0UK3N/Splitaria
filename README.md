@@ -88,9 +88,7 @@ segurança ao abri-los pela primeira vez.
 
 ## Licença
 
-O Splitaria é disponibilizado sob a **MIT License**. Você pode usar, copiar,
-modificar, distribuir, sublicenciar e vender cópias do software, desde que o
-aviso de copyright e o texto da licença sejam mantidos.
+O Splitaria é disponibilizado sob a **MIT License**.
 
 As fotos, os vídeos e as coleções organizadas com o Splitaria pertencem
 integralmente a seus respectivos proprietários.
