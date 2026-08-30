@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Splitaria.App;
 
-internal sealed record UpdateRelease(Version Version, string Tag, string PageUrl, UpdateAsset Installer);
+internal sealed record UpdateRelease(Version Version, string Tag, string PageUrl, string Notes, UpdateAsset Installer);
 internal sealed record UpdateAsset(string Name, Uri DownloadUrl, long Size, string Sha256);
 
 internal static class UpdateService
@@ -52,7 +52,8 @@ internal static class UpdateService
             throw new InvalidDataException("A release não contém uma assinatura SHA-256 válida.");
 
         var pageUrl = root.GetProperty("html_url").GetString() ?? "https://github.com/RY0UK3N/Splitaria/releases";
-        return new UpdateRelease(version, tag, pageUrl,
+        var notes = root.TryGetProperty("body", out var bodyElement) ? bodyElement.GetString() ?? "" : "";
+        return new UpdateRelease(version, tag, pageUrl, notes,
             new UpdateAsset(assetName, downloadUrl, assetElement.GetProperty("size").GetInt64(), digest[7..]));
     }
 

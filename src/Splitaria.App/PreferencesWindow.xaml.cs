@@ -41,6 +41,7 @@ public partial class PreferencesWindow : Window
     {
         UpdateButton.IsEnabled = false;
         UpdateActionsPanel.Visibility = Visibility.Collapsed;
+        ReleaseNotesPanel.Visibility = Visibility.Collapsed;
         UpdateStatusText.Text = "Consultando atualizações…";
         try
         {
@@ -54,6 +55,13 @@ public partial class PreferencesWindow : Window
 
             AvailableVersionText.Text = _availableRelease.Version.ToString(3);
             UpdateStatusText.Text = "Uma nova versão está pronta para download.";
+            var notes = FormatReleaseNotes(_availableRelease.Notes);
+            if (!string.IsNullOrWhiteSpace(notes))
+            {
+                ReleaseNotesTitle.Text = $"O que mudou na versão {_availableRelease.Version.ToString(3)}";
+                ReleaseNotesText.Text = notes;
+                ReleaseNotesPanel.Visibility = Visibility.Visible;
+            }
             UpdateActionsPanel.Visibility = Visibility.Visible;
         }
         catch (Exception ex)
@@ -105,6 +113,20 @@ public partial class PreferencesWindow : Window
     }
 
     private static void OpenUrl(string url) => Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+
+    private static string FormatReleaseNotes(string markdown)
+    {
+        if (string.IsNullOrWhiteSpace(markdown)) return "";
+
+        var items = markdown.Replace("\r", "").Split('\n')
+            .Select(line => line.Trim())
+            .Where(line => line.StartsWith("- ", StringComparison.Ordinal))
+            .Select(line => $"• {line[2..].Replace("**", "").Replace("*", "")}")
+            .Take(6)
+            .ToArray();
+
+        return string.Join(Environment.NewLine, items);
+    }
 
     private static string SelectedTag(ComboBox combo) => (combo.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "System";
     private static void SelectByTag(ComboBox combo, string tag) => combo.SelectedItem = combo.Items.Cast<ComboBoxItem>().First(item => Equals(item.Tag, tag));
